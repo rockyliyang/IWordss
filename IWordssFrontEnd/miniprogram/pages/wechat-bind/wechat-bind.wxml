@@ -1,0 +1,46 @@
+<!-- pages/wechat-bind/wechat-bind.wxml -->
+<view class="container">
+  <view class="header">
+    <text class="title">微信账号绑定</text>
+  </view>
+
+  <view class="content">
+    <view wx:if="{{!isLoggedIn}}" class="login-section">
+      <text class="tip">您需要先登录系统账号才能绑定微信</text>
+      <button class="btn primary" bindtap="navigateToLogin">去登录</button>
+    </view>
+
+    <view wx:else class="user-info">
+      <view class="info-item">
+        <text class="label">用户名：</text>
+        <text class="value">{{userInfo.username}}</text>
+      </view>
+      <view class="info-item">
+        <text class="label">账号状态：</text>
+        <text class="value {{isWechatBound ? 'success' : 'warning'}}">
+          {{isWechatBound ? '已绑定微信' : '未绑定微信'}}
+        </text>
+      </view>
+
+      <view wx:if="{{bindMessage}}" class="message {{isWechatBound ? 'success' : 'error'}}">
+        {{bindMessage}}
+      </view>
+
+      <view class="actions">
+        <button wx:if="{{!isWechatBound}}" class="btn primary" bindtap="handleBindWechat">绑定微信账号</button>
+        <button wx:if="{{isWechatBound}}" class="btn secondary" disabled>已成功绑定</button>
+      </view>
+    </view>
+
+    <view class="divider"></view>
+
+    <view class="wechat-login-section">
+      <text class="section-title">微信快捷登录</text>
+      <text class="tip">如果您已绑定微信账号，可直接使用微信登录</text>
+      <button class="btn wechat" bindtap="handleWechatLogin">
+        <text class="wechat-icon">微信</text>
+        <text>微信登录</text>
+      </button>
+    </view>
+  </view>
+</view>

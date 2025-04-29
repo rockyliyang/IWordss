@@ -1,0 +1,55 @@
+<!-- pages/login/login.wxml -->
+<view class="container">
+  <view class="logo-container">
+    <image class="logo" src="/images/logo.png" mode="aspectFit"></image>
+    <text class="app-name">IWordss</text>
+    <text class="app-slogan">基于艾宾浩斯记忆曲线的单词记忆助手</text>
+  </view>
+
+  <view class="login-form">
+    <view class="input-group {{errorMsg ? 'has-error' : ''}}">
+      <input 
+        type="text" 
+        placeholder="用户名" 
+        value="{{username}}" 
+        bindinput="onUsernameInput"
+      />
+    </view>
+    <view class="input-group {{errorMsg ? 'has-error' : ''}}">
+      <input 
+        type="password" 
+        placeholder="密码" 
+        value="{{password}}" 
+        bindinput="onPasswordInput"
+      />
+    </view>
+
+    <view class="error-message" wx:if="{{errorMsg}}">
+      <text>{{errorMsg}}</text>
+    </view>
+
+    <button 
+      class="login-btn" 
+      type="primary" 
+      bindtap="login" 
+      loading="{{loading}}"
+      disabled="{{loading}}"
+    >登录</button>
+
+    <button 
+      class="wxlogin-btn" 
+      type="default" 
+      bindtap="wxLogin" 
+      loading="{{loading}}"
+      disabled="{{loading}}"
+    >
+      <image class="wx-icon" src="/images/wechat.png" mode="aspectFit"></image>
+      微信登录
+    </button>
+  </view>
+
+  <view class="register-link">
+    <text>还没有账号？</text>
+    <text class="link" bindtap="goToRegister">立即注册</text>
+  </view>
+</view>

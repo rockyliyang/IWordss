@@ -1,0 +1,49 @@
+<!--pages/createTask/createTask.wxml-->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="title">创建记忆任务</text>
+  </view>
+
+  <!-- 表单区域 -->
+  <view class="form-container">
+    <view class="form-item">
+      <text class="form-label">选择单词本</text>
+      <picker bindchange="onWordbookChange" value="{{selectedWordbookIndex}}" range="{{wordbooks}}" range-key="name">
+        <view class="picker">
+          {{selectedWordbookIndex >= 0 ? wordbooks[selectedWordbookIndex].name : '请选择单词本'}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">任务名称</text>
+      <input class="form-input" value="{{formData.name}}" placeholder="请输入任务名称（选填）" bindinput="onInput" data-field="name"></input>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">每日单词数量</text>
+      <slider min="5" max="50" step="5" value="{{formData.wordsPerDay}}" show-value bindchange="onSliderChange"></slider>
+      <text class="slider-value">{{formData.wordsPerDay}}个</text>
+    </view>
+
+    <!-- 单词本信息展示 -->
+    <view class="wordbook-info" wx:if="{{selectedWordbookIndex >= 0}}">
+      <view class="info-item">
+        <text class="info-label">单词本:</text>
+        <text class="info-value">{{wordbooks[selectedWordbookIndex].name}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">单词数量:</text>
+        <text class="info-value">{{wordbooks[selectedWordbookIndex].word_count}}个</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">预计学习天数:</text>
+        <text class="info-value">{{Math.ceil(wordbooks[selectedWordbookIndex].word_count / formData.wordsPerDay)}}天</text>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-btn" bindtap="createTask">创建任务</view>
+  </view>
+</view>

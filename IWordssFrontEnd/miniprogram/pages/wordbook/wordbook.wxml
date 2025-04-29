@@ -1,0 +1,73 @@
+<!--pages/wordbook/wordbook.wxml-->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="title">单词本</text>
+    <view class="add-btn" bindtap="showCreateModal">新建单词本</view>
+  </view>
+
+  <!-- 加载中提示 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 无单词本提示 -->
+  <view class="empty-tip" wx:if="{{!loading && (!wordbooks || wordbooks.length === 0)}}">
+    <image class="empty-image" src="/images/empty_wordbook.png" mode="aspectFit"></image>
+    <text class="empty-text">还没有单词本哦</text>
+    <view class="create-btn" bindtap="showCreateModal">创建单词本</view>
+  </view>
+
+  <!-- 单词本列表 -->
+  <view class="wordbook-list" wx:if="{{!loading && wordbooks && wordbooks.length > 0}}">
+    <view wx:for="{{wordbooks}}" wx:key="id" class="wordbook-item">
+      <view class="wordbook-content" bindtap="viewWordbookDetail" data-id="{{item.id}}">
+        <view class="wordbook-info">
+          <text class="wordbook-name">{{item.name}}</text>
+          <text class="wordbook-desc">{{item.description || '暂无描述'}}</text>
+          <text class="wordbook-count">{{item.word_count}}个单词</text>
+          <text class="wordbook-date">创建于 {{item.created_at}}</text>
+        </view>
+      </view>
+      <view class="wordbook-actions">
+        <view class="action-btn create-task" bindtap="createTask" data-id="{{item.id}}" data-name="{{item.name}}">创建任务</view>
+        <view class="action-btn edit" bindtap="showEditModal" data-id="{{item.id}}" data-name="{{item.name}}" data-description="{{item.description}}">编辑</view>
+        <view class="action-btn delete" bindtap="deleteWordbook" data-id="{{item.id}}" data-name="{{item.name}}">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 创建/编辑单词本弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-mask" bindtap="closeModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">{{isEdit ? '编辑单词本' : '创建单词本'}}</text>
+        <view class="modal-close" bindtap="closeModal">×</view>
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="form-label">名称</text>
+          <input class="form-input" value="{{formData.name}}" placeholder="请输入单词本名称" bindinput="onInput" data-field="name"></input>
+        </view>
+        <view class="form-item">
+          <text class="form-label">描述</text>
+          <textarea class="form-textarea" value="{{formData.description}}" placeholder="请输入单词本描述（选填）" bindinput="onInput" data-field="description"></textarea>
+        </view>
+        <view class="form-item">
+          <text class="form-label">单词列表</text>
+          <view class="form-tip">可以直接输入单词，用|分隔，或者上传txt文件</view>
+          <textarea class="form-textarea" value="{{formData.words}}" placeholder="请输入单词，用|分隔，如：apple|banana|orange" bindinput="onInput" data-field="words"></textarea>
+        </view>
+        <view class="form-item">
+          <view class="upload-btn" bindtap="chooseFile">上传单词文件</view>
+          <text class="file-name" wx:if="{{fileName}}">已选择：{{fileName}}</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="closeModal">取消</view>
+        <view class="modal-btn confirm" bindtap="submitForm">确定</view>
+      </view>
+    </view>
+  </view>
+</view>

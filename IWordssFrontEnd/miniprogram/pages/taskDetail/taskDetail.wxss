@@ -1,0 +1,167 @@
+/* pages/taskDetail/taskDetail.wxss */
+.container {
+  padding: 30rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 30rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.loading {
+  text-align: center;
+  padding: 50rpx 0;
+  color: #999;
+}
+
+.task-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.task-card {
+  background-color: white;
+  border-radius: 15rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.task-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.task-status {
+  font-size: 24rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.active {
+  background-color: #E6F7FF;
+  color: #1890FF;
+}
+
+.paused {
+  background-color: #FFF7E6;
+  color: #FA8C16;
+}
+
+.completed {
+  background-color: #F6FFED;
+  color: #52C41A;
+}
+
+.task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+}
+
+.info-label {
+  width: 150rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.progress-section {
+  background-color: white;
+  border-radius: 15rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.progress-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.progress-label {
+  width: 100rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.progress-value {
+  width: 80rpx;
+  font-size: 26rpx;
+  color: #333;
+  text-align: right;
+}
+
+progress {
+  flex: 1;
+}
+
+.task-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 30rpx;
+}
+
+.action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 10rpx;
+  font-size: 30rpx;
+}
+
+.pause {
+  background-color: #FFF7E6;
+  color: #FA8C16;
+}
+
+.resume {
+  background-color: #E6F7FF;
+  color: #1890FF;
+}
+
+.today {
+  background-color: #1AAD19;
+  color: white;
+}

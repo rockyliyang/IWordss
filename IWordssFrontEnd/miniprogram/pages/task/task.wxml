@@ -1,0 +1,112 @@
+<!--pages/task/task.wxml-->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="title">今日任务</text>
+    <view class="add-btn" bindtap="navigateToCreateTask">新建任务</view>
+  </view>
+
+  <!-- 加载中提示 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 无任务提示 -->
+  <view class="empty-tip" wx:if="{{!loading && (!todayTasks || todayTasks.length === 0)}}">
+    <image class="empty-image" src="/images/empty_task.png" mode="aspectFit"></image>
+    <text class="empty-text">今天没有记忆任务哦</text>
+    <view class="create-btn" bindtap="navigateToCreateTask">创建任务</view>
+  </view>
+
+  <!-- 今日任务列表 -->
+  <view class="task-list" wx:if="{{!loading && todayTasks && todayTasks.length > 0}}">
+    <view wx:for="{{todayTasks}}" wx:key="id" class="task-item">
+      <view class="task-header" bindtap="navigateToTaskDetail" data-task-id="{{item.memory_task_id}}">
+        <text class="task-name">{{item.task_name}}</text>
+        <text class="task-status {{item.status}}">{{statusText[item.status]}}</text>
+      </view>
+
+      <!-- 今日需要背诵的单词 -->
+      <view class="word-section">
+        <view class="section-header" bindtap="toggleSection" data-section="today" data-task-index="{{index}}">
+          <text class="section-title">今日需要背诵 ({{getTotalWords(item.words)}})</text>
+          <view class="arrow {{expandedSections['today_'+index] ? 'up' : 'down'}}"></view>
+        </view>
+        <view class="word-list {{expandedSections['today_'+index] ? '' : 'collapsed'}}">
+          <!-- 未背诵的单词 -->
+          <view class="word-group" wx:if="{{item.words.not_started.length > 0}}">
+            <text class="group-title">未背诵 ({{item.words.not_started.length}})</text>
+            <view class="words">
+              <view wx:for="{{item.words.not_started}}" wx:key="*this" wx:for-item="word" class="word-item">
+                <text>{{word}}</text>
+                <view class="word-actions">
+                  <view class="action-btn learning" bindtap="updateWordStatus" data-task-id="{{item.memory_task_id}}" data-word="{{word}}" data-status="learning">标记为学习中</view>
+                  <view class="action-btn remembered" bindtap="updateWordStatus" data-task-id="{{item.memory_task_id}}" data-word="{{word}}" data-status="remembered">标记为已记住</view>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <!-- 正在学习的单词 -->
+          <view class="word-group" wx:if="{{item.words.learning.length > 0}}">
+            <text class="group-title">正在学习 ({{item.words.learning.length}})</text>
+            <view class="words">
+              <view wx:for="{{item.words.learning}}" wx:key="*this" wx:for-item="word" class="word-item">
+                <text>{{word}}</text>
+                <view class="word-actions">
+                  <view class="action-btn not-started" bindtap="updateWordStatus" data-task-id="{{item.memory_task_id}}" data-word="{{word}}" data-status="not_started">标记为未背诵</view>
+                  <view class="action-btn remembered" bindtap="updateWordStatus" data-task-id="{{item.memory_task_id}}" data-word="{{word}}" data-status="remembered">标记为已记住</view>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <!-- 已记住的单词 -->
+          <view class="word-group" wx:if="{{item.words.remembered.length > 0}}">
+            <text class="group-title">已记住 ({{item.words.remembered.length}})</text>
+            <view class="words">
+              <view wx:for="{{item.words.remembered}}" wx:key="*this" wx:for-item="word" class="word-item">
+                <text>{{word}}</text>
+                <view class="word-actions">
+                  <view class="action-btn not-started" bindtap="updateWordStatus" data-task-id="{{item.memory_task_id}}" data-word="{{word}}" data-status="not_started">标记为未背诵</view>
+                  <view class="action-btn learning" bindtap="updateWordStatus" data-task-id="{{item.memory_task_id}}" data-word="{{word}}" data-status="learning">标记为学习中</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 任务完成按钮 -->
+      <view class="complete-task" bindtap="completeDailyTask" data-daily-task-id="{{item.id}}" data-status="{{item.status === 'completed' ? 'in_progress' : 'completed'}}">
+        {{item.status === 'completed' ? '重新开始' : '完成任务'}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 历史任务统计 -->
+  <view class="stats-section" wx:if="{{!loading && taskStats}}">
+    <view class="section-header" bindtap="toggleSection" data-section="stats">
+      <text class="section-title">学习统计</text>
+      <view class="arrow {{expandedSections.stats ? 'up' : 'down'}}"></view>
+    </view>
+    <view class="stats-content {{expandedSections.stats ? '' : 'collapsed'}}">
+      <view class="stat-item">
+        <text class="stat-label">总单词数</text>
+        <text class="stat-value">{{taskStats.total}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">已记住</text>
+        <text class="stat-value">{{taskStats.remembered}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">学习中</text>
+        <text class="stat-value">{{taskStats.learning}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">未学习</text>
+        <text class="stat-value">{{taskStats.not_started}}</text>
+      </view>
+    </view>
+  </view>
+</view>

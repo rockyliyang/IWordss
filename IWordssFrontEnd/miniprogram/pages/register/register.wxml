@@ -1,0 +1,59 @@
+<!-- pages/register/register.wxml -->
+<view class="container">
+  <view class="header">
+    <text class="title">创建账号</text>
+    <text class="subtitle">注册IWordss，开始您的单词记忆之旅</text>
+  </view>
+
+  <view class="register-form">
+    <view class="input-group {{errorMsg ? 'has-error' : ''}}">
+      <input 
+        type="text" 
+        placeholder="用户名" 
+        value="{{username}}" 
+        bindinput="onUsernameInput"
+      />
+    </view>
+    <view class="input-group {{errorMsg ? 'has-error' : ''}}">
+      <input 
+        type="password" 
+        placeholder="密码" 
+        value="{{password}}" 
+        bindinput="onPasswordInput"
+      />
+    </view>
+    <view class="input-group {{errorMsg ? 'has-error' : ''}}">
+      <input 
+        type="password" 
+        placeholder="确认密码" 
+        value="{{confirmPassword}}" 
+        bindinput="onConfirmPasswordInput"
+      />
+    </view>
+    <view class="input-group {{errorMsg ? 'has-error' : ''}}">
+      <input 
+        type="text" 
+        placeholder="邮箱（选填）" 
+        value="{{email}}" 
+        bindinput="onEmailInput"
+      />
+    </view>
+
+    <view class="error-message" wx:if="{{errorMsg}}">
+      <text>{{errorMsg}}</text>
+    </view>
+
+    <button 
+      class="register-btn" 
+      type="primary" 
+      bindtap="register" 
+      loading="{{loading}}"
+      disabled="{{loading}}"
+    >注册</button>
+  </view>
+
+  <view class="login-link">
+    <text>已有账号？</text>
+    <text class="link" bindtap="goToLogin">返回登录</text>
+  </view>
+</view>
