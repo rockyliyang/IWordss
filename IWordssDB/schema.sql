@@ -20,14 +20,19 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 微信用户关联表
 CREATE TABLE IF NOT EXISTS wechat_users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    wechat_openid VARCHAR(100) NOT NULL,
-    wechat_unionid VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY (wechat_openid)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  wechat_openid VARCHAR(100) NOT NULL,
+  wechat_unionid VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY (wechat_openid)
 );
+
+-- 添加索引
+CREATE INDEX idx_user_id ON wechat_users(user_id);
+CREATE INDEX idx_openid ON wechat_users(wechat_openid);
 
 -- 单词本表
 CREATE TABLE IF NOT EXISTS wordbooks (

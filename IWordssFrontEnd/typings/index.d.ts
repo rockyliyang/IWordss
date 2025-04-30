@@ -7,7 +7,6 @@ interface IAppOption {
     baseUrl: string | null
   }
   userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
-  checkLoginStatus(): void,
   checkAuth(pageObj: any): any,
   silentLogin(): void,
   wechatSilentLogin(): void

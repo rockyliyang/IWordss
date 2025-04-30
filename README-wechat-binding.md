@@ -9,7 +9,7 @@
 ### 后端实现
 
 1. **数据库表结构**
-   - 创建了`user_wechat_bindings`表，用于存储用户ID与微信openid的绑定关系
+   - 创建了`wechat_users`表，用于存储用户ID与微信openid的绑定关系
    - 表结构包含：id, user_id, openid, created_at, updated_at
    - 添加了唯一索引确保一个微信账号只能绑定一个系统账号
 
@@ -43,15 +43,25 @@
 3. 将code发送到后端换取用户openid
 4. 后端查询openid是否已绑定系统账号
 5. 如已绑定，自动完成登录并返回token
-6. 如未绑定，保持未登录状态，用户可选择注册或登录系统账号
+6. 如未绑定，自动创建一个新用户，并返回token
 
-### 首次使用绑定流程
+### 在APP端首次使用绑定流程
 
-1. 用户使用用户名密码登录系统
-2. 进入微信绑定页面
+1. 用户可以选择微信登录还是使用用户名或者手机号登录
+2. 如选择微信登录，进入微信绑定页面
 3. 点击"绑定微信账号"按钮
 4. 系统会获取用户的微信openid并与当前登录的系统账号建立绑定关系
-5. 绑定成功后，下次打开小程序将自动登录
+5. 绑定成功后，下次打开app将自动登录
+6. 如选择用户名，进入用户名登录页面
+7. 输入用户名和密码
+8. 点击登录按钮
+9. 系统会验证用户名和密码
+10. 登录成功后，自动保存token和用户信息
+11. 如选择手机号，进入手机号登录页面
+12. 输入手机号和验证码
+13. 点击登录按钮
+14. 系统会验证手机号和验证码
+15. 登录成功后，自动保存token和用户信息
 
 ## 注意事项
 
@@ -68,10 +78,11 @@
 
 ```sql
 -- 创建微信用户绑定表
-CREATE TABLE IF NOT EXISTS user_wechat_bindings (
+CREATE TABLE IF NOT EXISTS wechat_users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
-  openid VARCHAR(100) NOT NULL,
+  wechat_openid VARCHAR(100) NOT NULL,
+  wechat_unionid VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -79,6 +90,6 @@ CREATE TABLE IF NOT EXISTS user_wechat_bindings (
 );
 
 -- 添加索引
-CREATE INDEX idx_user_id ON user_wechat_bindings(user_id);
-CREATE INDEX idx_openid ON user_wechat_bindings(openid);
+CREATE INDEX idx_user_id ON wechat_users(user_id);
+CREATE INDEX idx_openid ON wechat_users(openid);
 ```

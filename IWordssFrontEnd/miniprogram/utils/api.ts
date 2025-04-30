@@ -16,7 +16,8 @@ import {
   UpdateWordbookParams,
   CreateTaskParams,
   UpdateWordStatusParams,
-  UpdateDailyTaskStatusParams
+  UpdateDailyTaskStatusParams,
+  WechatBindParams
 } from './api.types';
 
 // 根据当前环境获取API基础URL
@@ -63,8 +64,8 @@ export const userAPI = {
   },
   
   // 微信登录
-  wxLogin: (code: string): Promise<ApiResponse<LoginResponse>> => {
-    return request<LoginResponse>('/wechat/login', 'POST', { code });
+  wxLogin: (data: { code: string, nickname?: string, avatarUrl?: string }): Promise<ApiResponse<LoginResponse>> => {
+    return request<LoginResponse>('/wechat/login', 'POST', data);
   },
   
   // 注册

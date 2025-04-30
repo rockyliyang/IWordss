@@ -20,6 +20,7 @@ export interface User {
 export interface LoginResponse {
   token: string;
   user: User;
+  openid?: string; // 微信登录时可能返回的openid
 }
 
 // 单词本相关接口

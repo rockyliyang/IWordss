@@ -48,7 +48,7 @@ Component({
         } else {
           throw new Error(res.message || '获取任务失败');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('加载今日任务失败:', error);
         wx.showToast({
           title: '加载失败',
@@ -86,7 +86,7 @@ Component({
         } else {
           throw new Error(res.message || '获取统计失败');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('加载任务统计失败:', error);
         wx.showToast({
           title: '统计加载失败',

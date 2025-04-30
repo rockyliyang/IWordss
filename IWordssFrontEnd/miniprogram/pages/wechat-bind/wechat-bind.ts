@@ -1,11 +1,12 @@
 // pages/wechat-bind/wechat-bind.ts
 import { userAPI } from '../../utils/api';
+import { User, ApiResponse } from '../../utils/api.types';
 
 Page({
   data: {
     isLoggedIn: false,
     isWechatBound: false,
-    userInfo: null,
+    userInfo: null as User | null,
     openid: '',
     bindMessage: ''
   },
@@ -22,13 +23,13 @@ Page({
   // 获取用户信息
   getUserInfo() {
     userAPI.getUserInfo().then(res => {
-      if (res.success) {
+      if (res.success && res.data) {
         this.setData({
           userInfo: res.data,
           isWechatBound: !!res.data.openid
         });
       }
-    }).catch(err => {
+    }).catch((err: Error) => {
       console.error('获取用户信息失败', err);
       wx.showToast({
         title: '获取用户信息失败',
@@ -42,8 +43,8 @@ Page({
     wx.login({
       success: (res) => {
         if (res.code) {
-          userAPI.wxLogin(res.code).then(loginRes => {
-            if (loginRes.success) {
+          userAPI.wxLogin({code: res.code}).then((loginRes: ApiResponse<any>) => {
+            if (loginRes.success && loginRes.data) {
               wx.setStorageSync('token', loginRes.data.token);
               this.setData({
                 isLoggedIn: true,
@@ -55,21 +56,13 @@ Page({
                 icon: 'success'
               });
             } else {
-              // 如果返回openid但未绑定用户，保存openid用于后续绑定
-              if (loginRes.data && loginRes.data.openid) {
-                this.setData({ openid: loginRes.data.openid });
-                wx.showToast({
-                  title: '请先绑定账号',
-                  icon: 'none'
-                });
-              } else {
-                wx.showToast({
-                  title: loginRes.message || '微信登录失败',
-                  icon: 'none'
-                });
-              }
+              // 处理登录失败情况
+              wx.showToast({
+                title: loginRes.message || '微信登录失败',
+                icon: 'none'
+              });
             }
-          }).catch(err => {
+          }).catch((err: Error) => {
             console.error('微信登录失败', err);
             wx.showToast({
               title: '微信登录失败',
@@ -120,7 +113,7 @@ Page({
 
   // 执行绑定操作
   bindWechatAccount() {
-    userAPI.bindWechat({ openid: this.data.openid }).then(res => {
+    userAPI.bindWechat({ openid: this.data.openid }).then((res: ApiResponse<any>) => {
       if (res.success) {
         this.setData({
           isWechatBound: true,
@@ -141,7 +134,7 @@ Page({
           icon: 'none'
         });
       }
-    }).catch(err => {
+    }).catch((err: Error) => {
       console.error('绑定微信账号失败', err);
       this.setData({
         bindMessage: '绑定失败，请重试'

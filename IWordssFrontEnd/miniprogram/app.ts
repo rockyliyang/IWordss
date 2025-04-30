@@ -1,10 +1,11 @@
 // app.ts
 // 导入环境配置
 import { getEnvConfig } from './utils/config';
+import { ApiResponse, LoginResponse } from './utils/api.types';
 
 App<IAppOption>({
   globalData: {
-    userInfo: null as WechatMiniprogram.UserInfo | null,
+    userInfo: undefined as WechatMiniprogram.UserInfo | undefined,
     isLoggedIn: false,
     // 使用环境配置中的API地址
     baseUrl: null as string | null
@@ -43,19 +44,20 @@ App<IAppOption>({
           // 导入API
           const { userAPI } = require('./utils/api')
           // 发送code到后端换取登录态
-          userAPI.wxLogin(res.code).then(loginRes => {
+          userAPI.wxLogin({code: res.code}).then((loginRes: ApiResponse<LoginResponse>) => {
             if (loginRes.success && loginRes.data && loginRes.data.token) {
               // 登录成功，保存token
               wx.setStorageSync('token', loginRes.data.token)
               this.globalData.isLoggedIn = true
-              this.globalData.userInfo = loginRes.data.user
+              // 将User类型转换为WechatMiniprogram.UserInfo类型
+              this.globalData.userInfo = loginRes.data.user as unknown as WechatMiniprogram.UserInfo
               console.log('微信静默登录成功')
             } else {
               // 未绑定账号或其他错误，保持未登录状态
               this.globalData.isLoggedIn = false
               console.log('微信静默登录失败:', loginRes.message)
             }
-          }).catch(err => {
+          }).catch((err: Error) => {
             console.error('微信静默登录失败:', err)
             this.globalData.isLoggedIn = false
           })

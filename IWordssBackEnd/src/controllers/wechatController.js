@@ -1,5 +1,5 @@
 const { pool } = require('../config/db');
-const { generateToken } = require('../utils/auth');
+const { generateToken, hashPassword } = require('../utils/auth');
 
 // 绑定微信用户ID与系统用户ID
 exports.bindWechatUser = async (req, res) => {
@@ -13,7 +13,7 @@ exports.bindWechatUser = async (req, res) => {
 
     // 检查openid是否已经绑定其他账号
     const [existingBindings] = await pool.execute(
-      'SELECT user_id FROM user_wechat_bindings WHERE openid = ?',
+      'SELECT user_id FROM wechat_users WHERE openid = ?',
       [openid]
     );
 
@@ -35,7 +35,7 @@ exports.bindWechatUser = async (req, res) => {
 
     // 创建绑定关系
     await pool.execute(
-      'INSERT INTO user_wechat_bindings (user_id, openid) VALUES (?, ?)',
+      'INSERT INTO wechat_users (user_id, wechat_openid) VALUES (?, ?)',
       [userId, openid]
     );
 
@@ -54,6 +54,51 @@ exports.bindWechatUser = async (req, res) => {
   }
 };
 
+/**
+ * 创建或获取微信用户
+ * @param {string} openid - 微信openid
+ * @param {string} nickname - 微信用户昵称
+ * @param {string} avatarUrl - 微信用户头像URL
+ * @returns {Promise<number>} - 返回用户ID
+ */
+const createUserFromWechat = async (openid, nickname, avatarUrl) => {
+  // 查询是否有绑定关系
+  const [bindings] = await pool.execute(
+    'SELECT user_id FROM wechat_users WHERE wechat_openid = ?',
+    [openid]
+  );
+
+  // 如果已有绑定关系，直接返回用户ID
+  if (bindings.length > 0) {
+    return bindings[0].user_id;
+  }
+  
+  // 没有绑定关系，创建新用户
+  // 使用微信昵称作为用户名，如果没有则使用默认格式
+  const username = nickname ? nickname : `wx_${openid.substring(0, 8)}_${Math.floor(Math.random() * 1000)}`;
+  // 生成随机密码
+  const randomPassword = Math.random().toString(36).slice(-10);
+  // 加密密码
+  const hashedPassword = await hashPassword(randomPassword);
+  
+  // 创建新用户，包含头像URL
+  const [userResult] = await pool.execute(
+    'INSERT INTO users (username, password, email, avatar_url) VALUES (?, ?, ?, ?)',
+    [username, hashedPassword, '', avatarUrl || '']
+  );
+  
+  const userId = userResult.insertId;
+  
+  // 创建绑定关系
+  await pool.execute(
+    'INSERT INTO wechat_users (user_id, wechat_openid) VALUES (?, ?)',
+    [userId, openid]
+  );
+  
+  console.log(`自动创建新用户成功: ${username}, userId: ${userId}`);
+  return userId;
+};
+
 // 微信登录
 exports.wxLogin = async (req, res) => {
   try {
@@ -68,13 +113,14 @@ exports.wxLogin = async (req, res) => {
 
     // 微信小程序appid和secret配置
     const appid = process.env.WECHAT_APPID || 'wxc735d0106f610d74'; // 从环境变量获取或使用默认值
-    const secret = process.env.WECHAT_SECRET || ''; // 从环境变量获取
+    const secret = process.env.WECHAT_SECRET || '81ae78c06a529e80b9ae2c796caba86b'; // 从环境变量获取
     
     // 调用微信API获取openid
     const wxApiUrl = `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
     
     // 发起HTTP请求获取openid
-    const fetch = require('node-fetch');
+    // Using dynamic import for node-fetch (ES Module)
+    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
     const response = await fetch(wxApiUrl);
     const wxResult = await response.json();
     
@@ -87,26 +133,17 @@ exports.wxLogin = async (req, res) => {
     }
     
     const openid = wxResult.openid; // 获取真实openid
-
-    // 查询是否有绑定关系
-    const [bindings] = await pool.execute(
-      'SELECT user_id FROM user_wechat_bindings WHERE openid = ?',
-      [openid]
-    );
-
-    if (bindings.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: '该微信账号未绑定系统用户',
-        data: { openid }
-      });
-    }
-
-    const userId = bindings[0].user_id;
+    
+    // 获取微信用户信息（昵称和头像）
+    let nickname = req.body.nickname || null;
+    let avatarUrl = req.body.avatarUrl || null;
+    
+    // 创建或获取用户
+    const userId = await createUserFromWechat(openid, nickname, avatarUrl);
 
     // 获取用户信息
     const [users] = await pool.execute(
-      'SELECT id, username, email FROM users WHERE id = ?',
+      'SELECT id, username, email, avatar_url FROM users WHERE id = ?',
       [userId]
     );
 
@@ -133,7 +170,8 @@ exports.wxLogin = async (req, res) => {
         user: {
           id: user.id,
           username: user.username,
-          email: user.email
+          email: user.email,
+          avatarUrl: user.avatar_url
         }
       }
     });

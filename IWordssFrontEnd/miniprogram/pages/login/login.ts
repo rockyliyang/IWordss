@@ -91,36 +91,86 @@ Page({
       const loginRes = await wx.login();
       
       if (loginRes.code) {
-        // 调用微信登录API
-        const res = await userAPI.wxLogin(loginRes.code);
-        
-        if (res.success && res.data && res.data.token) {
-          // 保存token到本地
-          wx.setStorageSync('token', res.data.token);
+        // 获取用户信息
+        try {
+          // 获取用户信息
+          const userProfileRes = await wx.getUserProfile({
+            desc: '用于完善用户资料'
+          });
           
-          // 返回上一页或跳转到首页
-          wx.showToast({
-            title: '登录成功',
-            icon: 'success',
-            duration: 1500,
-            success: () => {
-              setTimeout(() => {
-                const pages = getCurrentPages();
-                if (pages.length > 1) {
-                  wx.navigateBack();
-                } else {
-                  wx.switchTab({
-                    url: '/pages/index/index'
-                  });
-                }
-              }, 1500);
-            }
+          const { nickName, avatarUrl } = userProfileRes.userInfo;
+          
+          // 调用微信登录API，传递用户信息
+          const res = await userAPI.wxLogin({
+            code: loginRes.code,
+            nickname: nickName,
+            avatarUrl: avatarUrl
           });
-        } else {
-          this.setData({ 
-            errorMsg: res.message || '微信登录失败',
-            loading: false
-          });
+          
+          if (res.success && res.data && res.data.token) {
+            // 保存token和用户信息到本地
+            wx.setStorageSync('token', res.data.token);
+            wx.setStorageSync('userInfo', res.data.user);
+            
+            // 返回上一页或跳转到首页
+            wx.showToast({
+              title: '登录成功',
+              icon: 'success',
+              duration: 1500,
+              success: () => {
+                setTimeout(() => {
+                  const pages = getCurrentPages();
+                  if (pages.length > 1) {
+                    wx.navigateBack();
+                  } else {
+                    wx.switchTab({
+                      url: '/pages/index/index'
+                    });
+                  }
+                }, 1500);
+              }
+            });
+          } else {
+            this.setData({ 
+              errorMsg: res.message || '微信登录失败',
+              loading: false
+            });
+          }
+        } catch (userInfoError) {
+          console.error('获取用户信息失败:', userInfoError);
+          
+          // 用户拒绝授权，仍然可以使用code登录，但不传递用户信息
+          const res = await userAPI.wxLogin({code: loginRes.code});
+          
+          if (res.success && res.data && res.data.token) {
+            // 保存token到本地
+            wx.setStorageSync('token', res.data.token);
+            wx.setStorageSync('userInfo', res.data.user);
+            
+            // 返回上一页或跳转到首页
+            wx.showToast({
+              title: '登录成功',
+              icon: 'success',
+              duration: 1500,
+              success: () => {
+                setTimeout(() => {
+                  const pages = getCurrentPages();
+                  if (pages.length > 1) {
+                    wx.navigateBack();
+                  } else {
+                    wx.switchTab({
+                      url: '/pages/index/index'
+                    });
+                  }
+                }, 1500);
+              }
+            });
+          } else {
+            this.setData({ 
+              errorMsg: res.message || '微信登录失败',
+              loading: false
+            });
+          }
         }
       } else {
         this.setData({ 
