@@ -27,18 +27,29 @@ Component({
 
   lifetimes: {
     attached() {
+      console.log('组件attached');
+      // 在attached生命周期就开始加载数据
       this.loadWordbooks();
+    },
+    ready() {
+      console.log('组件ready');
       
       // 获取页面参数
-      const pages = getCurrentPages();
-      const currentPage = pages[pages.length - 1];
-      const options = currentPage.options;
+      //const pages = getCurrentPages();
+      const currentPage = getCurrentPages().pop(); //pages[pages.length - 1];
+      const options = currentPage?.options;
       
-      if (options.wordbookId && options.wordbookName) {
+      if (options?.wordbookId && options?.wordbookName) {
         this.setData({
           'formData.wordbookId': Number(options.wordbookId),
           'formData.name': `${options.wordbookName}的学习任务`
         });
+      }
+      
+      // 确保数据已加载
+      if (this.data.wordbooks.length === 0) {
+        console.log('在ready中重新加载单词本');
+        this.loadWordbooks();
       }
     }
   },
@@ -51,10 +62,13 @@ Component({
         const res = await wordbookAPI.getWordbooks();
         
         if (res.success) {
+          console.log('获取单词本成功:', res.data);
           this.setData({
             wordbooks: res.data,
             loading: false
           });
+          // 打印设置后的数据，确认数据已正确设置
+          console.log('设置后的单词本数据:', this.data.wordbooks);
         } else {
           throw new Error(res.message || '获取单词本失败');
         }
@@ -71,12 +85,26 @@ Component({
     // 选择单词本
     onWordbookChange(e: WechatMiniprogram.PickerChange) {
       const index = parseInt(e.detail.value as string);
-      const wordbookId = this.data.wordbooks[index].id;
+      console.log('选择的单词本索引:', index);
       
-      this.setData({
-        selectedWordbookIndex: index,
-        'formData.wordbookId': wordbookId
-      });
+      // 确保wordbooks数组存在且有数据
+      if (this.data.wordbooks && this.data.wordbooks.length > 0 && index >= 0) {
+        const wordbookId = this.data.wordbooks[index].id;
+        console.log('选择的单词本ID:', wordbookId);
+        
+        this.setData({
+          selectedWordbookIndex: index,
+          'formData.wordbookId': wordbookId
+        });
+        
+        // 打印设置后的状态
+        console.log('设置后的状态:', {
+          selectedWordbookIndex: this.data.selectedWordbookIndex,
+          wordbookId: this.data.formData.wordbookId
+        });
+      } else {
+        console.error('单词本数据不存在或索引无效');
+      }
     },
 
     // 输入任务名称

@@ -39,5 +39,6 @@
   },
   "appid": "wxc735d0106f610d74",
   "projectname": "miniprogram-344",
-  "projectArchitecture": "multiPlatform"
+  "projectArchitecture": "multiPlatform",
+  "sourceMap": true
 }

@@ -6,7 +6,8 @@ const {
   createWordbook, 
   createWordbookFromFile, 
   getWordbookById, 
-  updateWordbook 
+  updateWordbook,
+  deleteWordbook 
 } = require('../controllers/wordbookController');
 const multer = require('multer');
 const path = require('path');
@@ -37,5 +38,8 @@ router.get('/:id', authenticate, getWordbookById);
 
 // 更新单词本
 router.put('/:id', authenticate, updateWordbook);
+
+// 删除单词本
+router.delete('/:id', authenticate, deleteWordbook);
 
 module.exports = router;

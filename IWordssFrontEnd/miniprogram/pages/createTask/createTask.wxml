@@ -7,9 +7,17 @@
 
   <!-- 表单区域 -->
   <view class="form-container">
+    <!-- 调试信息 -->
+    <view class="debug-info" style="margin-bottom: 10px; color: #666; font-size: 12px;">
+      <text>单词本数量: {{wordbooks.length}}</text>
+      <view wx:if="{{wordbooks.length > 0}}">
+        <text>第一个单词本: {{wordbooks[0].name}}</text>
+      </view>
+    </view>
+
     <view class="form-item">
       <text class="form-label">选择单词本</text>
-      <picker bindchange="onWordbookChange" value="{{selectedWordbookIndex}}" range="{{wordbooks}}" range-key="name">
+      <picker bindchange="onWordbookChange" value="{{selectedWordbookIndex}}" range="{{wordbooks}}" range-key="name" disabled="{{wordbooks.length === 0}}">
         <view class="picker">
           {{selectedWordbookIndex >= 0 ? wordbooks[selectedWordbookIndex].name : '请选择单词本'}}
         </view>

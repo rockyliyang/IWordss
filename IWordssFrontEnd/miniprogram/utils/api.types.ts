@@ -28,9 +28,9 @@ export interface Wordbook {
   id: number;
   name: string;
   description?: string;
-  wordCount?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  word_count?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface WordbookDetail extends Wordbook {
